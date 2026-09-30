@@ -20,6 +20,8 @@ from ..errors import (
     StoreError,
     SupplyInterruptedError,
     TransferFailedError,
+    TrendConflictError,
+    TrendOrderError,
     UnknownKeyError,
     ValveNotOpenError,
 )
@@ -43,6 +45,8 @@ CONFLICT = (
     TransferFailedError,
     RinseFailedError,
     MediaNotReadyError,
+    TrendOrderError,
+    TrendConflictError,
 )
 MALFORMED = (InvalidEfficiencyError, InvalidStagesError)
 MISSING = (UnknownKeyError,)
@@ -53,6 +57,8 @@ ROUTES: tuple[tuple[str, str, Handler], ...] = (
     ("POST", routes.SHUTDOWN, operations.shutdown),
     ("POST", routes.SWITCH, operations.switch),
     ("POST", routes.MAINTAIN, operations.maintain),
+    ("POST", routes.TRENDS_COLLECT, operations.collect_trends),
+    ("POST", routes.TRENDS_BACKFILL, operations.backfill_trend),
 )
 
 

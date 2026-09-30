@@ -95,6 +95,29 @@ def summary(console, request: Request) -> Response:
     return json_response(console.plant.summary())
 
 
+def trends(console, request: Request) -> Response:
+    """Effective trend of the key measurement points."""
+    point = request.param("point")
+    limit = request.integer("limit", 10)
+    return json_response(console.plant.trend_view(point=point, limit=limit))
+
+
+def trend_history(console, request: Request) -> Response:
+    """Every published version and correction of one point."""
+    point = request.param("point")
+    if point is None:
+        raise ValueError("trend history needs a point parameter")
+    return json_response(console.plant.trend_history(point))
+
+
+def trend_reconcile(console, request: Request) -> Response:
+    """Check the published trend of one point against its raw readings."""
+    point = request.param("point")
+    if point is None:
+        raise ValueError("trend reconcile needs a point parameter")
+    return json_response(console.plant.trend_reconcile(point))
+
+
 def selftest(console, request: Request) -> Response:
     """Full-cycle self test."""
     return json_response(console.plant.selftest())
@@ -123,6 +146,9 @@ ROUTE_TABLE = (
     (routes.REPORT, report),
     (routes.AUDIT, audit),
     (routes.SUMMARY, summary),
+    (routes.TRENDS, trends),
+    (routes.TRENDS_HISTORY, trend_history),
+    (routes.TRENDS_RECONCILE, trend_reconcile),
     (routes.SELFTEST, selftest),
     (routes.VERSION, version),
 )

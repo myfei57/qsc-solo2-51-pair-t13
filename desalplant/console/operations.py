@@ -29,3 +29,17 @@ def maintain(console, request: Request) -> Response:
     request.body()
     event = console.plant.maintain()
     return json_response({"status": "maintained", "event": event.to_dict()})
+
+
+def collect_trends(console, request: Request) -> Response:
+    """Sample the key measurement points and publish their trends."""
+    body = request.body()
+    report = console.plant.collect_trends(values=body.get("values"), stamp=body.get("tick"))
+    return json_response(report)
+
+
+def backfill_trend(console, request: Request) -> Response:
+    """Merge late samples and append corrections for the revised ticks."""
+    body = request.body()
+    report = console.plant.backfill_trend(body["point"], body["samples"])
+    return json_response(report)

@@ -33,6 +33,8 @@ from ..tank.handoff import handoff
 from ..tank.level import Level
 from ..tank.product import ProductTank
 from ..tank.tanks import TankSet
+from ..trend import probe
+from ..trend.service import TrendService
 from . import alarms, audit_report, integration, probes, reports, summary, telemetry, version
 from .version import BuildInfo
 
@@ -76,6 +78,7 @@ class Plant:
         self.product = ProductTank()
         self.level = Level()
         self.brine_stream = BrineStream(concentration=0.6)
+        self.trends = TrendService(store, recorder)
 
     # ------------------------------------------------------------- lifecycle
 
@@ -144,6 +147,29 @@ class Plant:
     def pump_differential(self) -> float:
         """Pressure differential over the array's final stage."""
         return differential(self.hp_pump, self.array, dict(LAST_STAGE_READINGS))
+
+    # ---------------------------------------------------------------- trends
+
+    def collect_trends(self, values: dict[str, float] | None = None, stamp: int | None = None):
+        """Sample the key measurement points and publish their trends."""
+        readings = probe.sample_plant(self) if values is None else values
+        return self.trends.collect(readings, stamp=stamp)
+
+    def backfill_trend(self, point: str, samples):
+        """Merge late samples and append corrections for the revised ticks."""
+        return self.trends.backfill(point, samples)
+
+    def trend_view(self, point: str | None = None, limit: int = 10):
+        """Effective trend of the key measurement points."""
+        return self.trends.view(point=point, limit=limit)
+
+    def trend_history(self, point: str):
+        """Every published version and correction of a point."""
+        return self.trends.history(point)
+
+    def trend_reconcile(self, point: str):
+        """Check the published trend of a point against its raw readings."""
+        return self.trends.reconcile(point)
 
     # --------------------------------------------------------------- reading
 

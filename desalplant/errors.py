@@ -74,6 +74,14 @@ class MediaNotReadyError(ContractError):
     """Raised when filtration is demanded before a media backwash."""
 
 
+class TrendOrderError(ContractError):
+    """Raised when a trend sample arrives outside the committed tick order."""
+
+
+class TrendConflictError(ContractError):
+    """Raised when late data contradicts a raw reading that is already committed."""
+
+
 class UnknownKeyError(ContractError):
     """Raised when a committed value is required but the key was never written."""
 
